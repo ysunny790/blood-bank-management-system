@@ -2,7 +2,7 @@
 
 ## 📌 Overview
 
-This project is a **full-stack data-driven application** designed to manage blood donation, storage, and distribution efficiently.
+A **full-stack data-driven application** for managing blood donation, storage, and distribution.
 
 It integrates:
 
@@ -10,44 +10,45 @@ It integrates:
 * **Backend Logic (Python)**
 * **Interactive Web Interface (Streamlit)**
 
-The system simulates real-world blood bank operations including donor management, inventory tracking, and data analysis.
-
 ---
 
 ## 🚀 Key Features
 
 ### 🧑‍⚕️ Donor Management
 
-* View all donors
-* Add new donor records
+* View all donors with last-donation date and pagination
+* Add donors with validated inputs (age ≥ 18, phone/email format)
+* Edit and delete donor records
 * Search donors by blood group
 
-### 🩸 Blood Inventory System
+### 🩸 Blood Inventory
 
-* Track available blood units
-* Group-wise inventory analysis
-* Real-time data retrieval
+* Group-wise inventory summary with bar chart
+* Configurable expiry alert (flags units expiring within N days)
 
-### 📊 Dashboard & Analytics
+### 📋 Blood Requests
 
-* Total donors count
-* Available blood units
-* Visual representation using charts
+* View all requests with patient and hospital details
+* Submit new requests
+* Update request status (Pending / Approved / Completed / Rejected)
 
-### 💻 Interactive Web App
+### 🏥 Hospitals & Patients
 
-* Built using Streamlit
-* Clean UI with sidebar navigation
-* Real-time database interaction
+* View and add hospitals
+* View and add patients linked to hospitals
+
+### 📊 Dashboard
+
+* Live counts: total donors, available units, pending requests, expiring units
 
 ---
 
 ## 🧠 System Architecture
 
 ```text
-User Interface (Streamlit)
+User Interface (streamlit_app.py)
         ↓
-Python Backend (MySQL Connector)
+Database Layer (db.py → DatabaseManager)
         ↓
 MySQL Database (Relational Schema)
 ```
@@ -59,11 +60,20 @@ MySQL Database (Relational Schema)
 ```
 blood-bank-management-system/
 │
-├── schema.sql           # Database structure
+├── db.py                # Database layer (all SQL + validation helpers)
+├── streamlit_app.py     # Web application (Streamlit UI)
+├── app.py               # CLI version
+│
+├── schema.sql           # Database schema
 ├── data.sql             # Sample data
-├── queries.sql          # SQL operations
-├── app.py               # CLI version (basic interaction)
-├── streamlit_app.py     # Web application (main project)
+├── queries.sql          # Example SQL queries
+│
+├── tests/
+│   └── test_db.py       # Unit tests (pytest, no DB required)
+│
+├── requirements.txt
+├── .env.example         # Environment variable template
+├── CONTRIBUTING.md
 └── README.md
 ```
 
@@ -71,82 +81,77 @@ blood-bank-management-system/
 
 ## 🛠️ Tech Stack
 
-* Python
-* MySQL
+* Python 3.9+
+* MySQL 8.0+
 * Streamlit
 * Pandas
+* python-dotenv
+* pytest
 
 ---
 
 ## ⚙️ How to Run Locally
 
-### 1. Setup Database
-
-```sql
-CREATE DATABASE test_bloodbank;
-USE test_bloodbank;
-```
-
-Run:
-
-```sql
-SOURCE schema.sql;
-SOURCE data.sql;
-```
-
----
-
-### 2. Install Dependencies
+### 1. Install dependencies
 
 ```bash
-pip install mysql-connector-python streamlit pandas
+pip install -r requirements.txt
 ```
 
----
+### 2. Configure credentials
 
-### 3. Run Application
+```bash
+cp .env.example .env
+# Edit .env and set DB_HOST, DB_USER, DB_PASSWORD, DB_NAME
+```
+
+### 3. Create the database
+
+```bash
+mysql -u root -p < schema.sql
+mysql -u root -p Bloodbank_Management_System < data.sql
+```
+
+### 4. Run the web app
 
 ```bash
 streamlit run streamlit_app.py
 ```
 
+### 5. Run the CLI version (optional)
+
+```bash
+python app.py
+```
+
 ---
 
-## 📊 Sample Functionalities
+## 🧪 Running Tests
 
-* Add a new donor through UI
-* Search donors by blood group
-* View complete donor list
-* Analyze available blood inventory
-* Visualize data using charts
+No MySQL instance required — all database calls are mocked.
+
+```bash
+pytest tests/ -v
+```
+
+---
+
+## 🔒 Security Notes
+
+* Database credentials are loaded from a `.env` file (see `.env.example`).
+* `.env` is listed in `.gitignore` and must **never** be committed.
+* All user inputs are validated (phone format, email format, age ≥ 18) before any DB write.
+* Specific MySQL exceptions (`IntegrityError`, `Error`) are caught; bare `except` is avoided.
 
 ---
 
 ## 🔥 What Makes This Project Stand Out
 
-* Combines **Database + Backend + UI**
-* Demonstrates **real-world system design**
-* Uses **SQL joins, constraints, and indexing**
-* Converts academic DBMS project into a **working application**
-* Includes **data visualization and analytics**
-
----
-
-## ⚠️ Challenges Solved
-
-* Maintaining referential integrity
-* Handling relational data across multiple tables
-* Connecting Python with MySQL
-* Designing an interactive UI for database operations
-
----
-
-## 🔮 Future Improvements
-
-* Add hospital & blood request module
-* Implement authentication system
-* Deploy app online (Streamlit Cloud)
-* Add advanced analytics dashboard
+* Clean separation of **Database ↔ UI** layers
+* Per-request DB connections (safe for concurrent Streamlit sessions)
+* Full input validation with user-friendly error messages
+* 38 unit tests with 100% pass rate
+* GitHub Actions CI pipeline
 
 ---
 
@@ -159,4 +164,4 @@ BSc Data Science & AI
 
 ## 📢 Note
 
-This project reflects a transition from **academic database design** to a **real-world application**, focusing on practical implementation and system building.
+This project reflects a transition from **academic database design** to a **production-ready application**, focusing on security, correctness, and maintainability.
