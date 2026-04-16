@@ -1,6 +1,5 @@
-CREATE DATABASE Bloodbank_Management_System;
-USE Bloodbank_Management_System;
-
+CREATE DATABASE test_bloodbank;
+USE test_bloodbank;
 -- ===============================
 -- 1. Bloodbank Table
 -- ===============================
